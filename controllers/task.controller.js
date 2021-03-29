@@ -1,48 +1,74 @@
-const { response, request, json } = require('express');
+const { response, request } = require('express');
 const { Task } = require('../models/task');
-const User = require('../models/user');
 
 
-const create = async (req = request, res = response) => {
+const createTask = async (req = request, res = response) => {
 
     const { description, userId } = req.body;
     const task = new Task({ description, userId });
 
-    await User.findById(userId, async (err, doc) => {
+    await task.save();
 
-        if (!doc) {
-
-            return res.status(404).json({
-                message: 'That user does not exist'
-            });
-
-        } else if (err) {
-
-            return res.status(500).json({
-                message: 'An error ocurred on the server'
-            });
-
-        } else {
-            
-            const user = new User(doc);
-
-            user.tasks.push(task);
-
-            await user.save();
-            await task.save();
-
-            return res.status(201).json({
-                message: 'Task save successfully'
-            });
-
-
-        }
-
+    return res.status(201).json({
+        message: 'Task saved successfully'
     });
+}
+
+const updateTask = async (req = request, res = response) => {
+
+    const { _id, id, userId, ...task} = req.body;
+
+    await Task.findByIdAndUpdate(id, task);
+
+    return res.status(200).json({
+        message: 'Task updated successfully'
+    });
+
+}
+
+const deleteTask = async (req = request, res = response) => {
+
+    const { id } = req.params;
+
+    await Task.findByIdAndUpdate(id, {
+        active : false
+    });
+
+    return res.status(200).json({
+        message: 'Task updated successfully'
+    });
+
 
 
 }
 
+const readTask = async (req = request, res = response) => {
+
+    const { userId } = req.params;
+    console.log(userId);
+    const { offset = 0, limit = 5 } = req.query;
+
+    const [tasks , results] = await Promise.all([
+        Task.find({
+            userId,
+            active : true
+        }).skip(offset).limit(limit),
+        Task.countDocuments({
+            userId,
+            active : true
+        })
+    ]);
+
+    return res.status(200).json({
+        results,
+        tasks
+    });
+
+}
+
 module.exports = {
-    create
+    createTask,
+    updateTask,
+    deleteTask,
+    readTask
 }

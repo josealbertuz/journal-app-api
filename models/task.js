@@ -17,40 +17,21 @@ const TaskSchema = new Schema({
     userId: {
         type: String,
         require: true
-    }
-}, {
-    timestamps: {
-        createdAt: 'created_at',
-        updatedAt: 'updated_at'
-    }
-});
-
-/*
-TaskSchema.method('insert', async function () {
-
-    try {
-
-        const session = await Task.startSession();
-    
-        session.withTransaction(async () => {
-    
-            await this.save();
-            const doc = await User.findById('605a3a682f66f228042b4a60');
-
-            console.log(doc);
-
-            return res.status(201).json({
-                message: 'Task save successfully'
-            });
-    
-        })
-        session.endSession();
-        
-    } catch (error) {
-        throw error;
+    },
+    active : {
+        type: Boolean,
+        default: true
     }
 });
-*/
+
+TaskSchema.methods.toJSON = function() {
+
+    const {_id, active, userId, __v, created_at, updated_at, ...task} = this.toObject();
+
+    return task;
+
+
+}
 
 const Task = model('Task', TaskSchema);
 

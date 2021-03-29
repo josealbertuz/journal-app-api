@@ -13,20 +13,24 @@ const NoteSchema = new Schema({
         type : [String],
         default : []
     },
-    category : {
-        type : String,
-        default : 'No category'
-    },
     userId : {
         type : String,
         require : true
-    }
-}, {
-    timestamps : {
-        createdAt : 'created_at',
-        updatedAt : 'updated_at'
+    },
+    active : {
+        type : Boolean,
+        defult : true
     }
 });
+
+
+NoteSchema.methods.toJSON = function(){
+
+    const {__v, _id, userId, active, ...note} = this.toObject();
+
+    return note;
+
+}
 
 const Note = model('Note', NoteSchema);
 

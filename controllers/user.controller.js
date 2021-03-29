@@ -1,97 +1,68 @@
 const User = require('../models/user');
 const bcript = require('bcryptjs');
 const { response, request } = require('express');
+const { Task } = require('../models/task');
+const { Note } = require('../models/note');
 
 
 const salt = bcript.genSaltSync();
 
+const updateUser = async (req = request, res = response) => {
 
-const readUser = async (req, res) => {
+    const { id, password, email, _id, active, ...user } = req.body;
 
-    const { email, password } = req.body;
-
-    const document = await User.userExists(email);
-
-    if (bcript.compareSync(password, document.password)) {
-        return res.json(document);
-    } else {
-        return res.status(404).json({
-            message: 'That user doesn\'t exist'
-        });
+    if (password) {
+        user.password = bcript.hashSync(password, salt);
     }
 
-}
 
-const createUser = async (req, res = response) => {
-
-    const { email, username, password } = req.body;
-
-    const user = User({ email, username, password });
-
-    user.password = bcript.hashSync(user.password, salt);
-
-    await user.save();
+    await User.findByIdAndUpdate(id, user);
 
     return res.json({
         message: 'User saved successfully'
     });
 
-}
-
-const updateUser = async (req = request, res = response) => {
-
-    const {id, password, email, _id, ...user} = req.body;
-
-    if(password){
-      user.password = bcript.hashSync(password, salt);
-    }
-
-    console.log(user);
-
-    try {
-        await User.findByIdAndUpdate(id, user);
-
-        return res.json({
-            message: 'User saved successfully'
-        });
-        
-    } catch (error) {
-
-        console.log(err);
-
-        return res.status(404).json({
-            message: 'User doesn\'t exist'
-        });
-
-    }
-
 
 
 }
 
-const deleteUser = async (req = request, res = response) => {
+const deleteUser = async (req = request, res = response, next) => {
 
-    const { id } = req.body;
+    
+    const { id } = req.params;
+
+
+    session = await User.startSession();
 
     try{
-        await User.findByIdAndUpdate(id, {active : false});
-        return res.status(200).json({
-            message: 'Operation successful'
-        })
-
-    }catch(err){
-        return res.status(404).json({
-            message: 'User doesn\'t exist'
+        await session.withTransaction(async () => {
+            await User.findByIdAndUpdate(id, {
+                active : false
+            });
+    
+            await Task.updateMany({userId : id}, {active : false});
+    
+            await Note.updateMany({userId : id}, {active : false});
+    
         });
 
+    }catch(err){
+        console.log(err);
+        next(new ErrorHandler(500, 'An error ocurred'));
+    }finally{
+        session.endSession();
     }
-        
+
+
+    return res.status(200).json({
+        message: 'Operation successful'
+    });
+
 }
 
 
 
 module.exports = {
-    readUser,
     createUser,
     updateUser,
     deleteUser
