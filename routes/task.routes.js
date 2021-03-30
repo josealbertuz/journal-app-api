@@ -6,10 +6,7 @@ const { checkErrors } = require('../middlewares/check-errors');
 const router = require('express').Router();
 
 router.post('', [
-    check('userId', 'userId can not be empty').notEmpty(),
     check('description', 'description can not be empty').notEmpty(),
-    checkErrors,
-    check('userId', 'That userId does not exists').custom(userExists),
     checkErrors
 ], createTask);
 
@@ -27,10 +24,7 @@ router.delete('/:id', [
     checkErrors
 ], deleteTask);
 
-router.get('/:userId', [
-    check('userId', 'Invalid userId').isMongoId(),
-    checkErrors
-], readTask);
+router.get('', readTask);
 
 
 

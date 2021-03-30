@@ -4,8 +4,9 @@ const { Task } = require('../models/task');
 
 const createTask = async (req = request, res = response) => {
 
-    const { description, userId } = req.body;
-    const task = new Task({ description, userId });
+    const { description } = req.body;
+    const userId = req.uid;
+    const task = new Task({description, userId});
 
     await task.save();
 
@@ -16,7 +17,7 @@ const createTask = async (req = request, res = response) => {
 
 const updateTask = async (req = request, res = response) => {
 
-    const { _id, id, userId, ...task} = req.body;
+    const { _id, id, ...task} = req.body;
 
     await Task.findByIdAndUpdate(id, task);
 
@@ -44,8 +45,8 @@ const deleteTask = async (req = request, res = response) => {
 
 const readTask = async (req = request, res = response) => {
 
-    const { userId } = req.params;
-    console.log(userId);
+    const userId = req.uid
+
     const { offset = 0, limit = 5 } = req.query;
 
     const [tasks , results] = await Promise.all([

@@ -9,15 +9,10 @@ const router = Router();
 router.post('', [
     check('title', 'title can not be empty').notEmpty(),
     check('body', 'body can not be empty').notEmpty(),
-    check('userId', 'userId can not be empty or is no valid').isMongoId(),
     checkErrors,
 ], createNote);
 
-router.get('/:userId', [
-    check('userId', 'userId can not be empty or is not valid').isMongoId(),
-    checkErrors,
-], readNote);
-
+router.get('', readNote);
 
 router.delete('/:id', [
     check('id', 'id can not be empty or is not valid').isMongoId(),

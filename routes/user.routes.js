@@ -28,18 +28,8 @@ router.post('', [
 ], createUser);
 */
 
-router.put('', [
-        check('id', 'It\'s not a valid id or is empty').isMongoId(),
-        checkErrors,
-        check('id').custom(userExists),
-        checkErrors
-], updateUser);
+router.put('', updateUser);
 
-router.delete('/:id', [
-    check('id', 'It\'s not a valid id or is empty').isMongoId(),
-    checkErrors,
-    check('id').custom(userExists),
-    checkErrors
-], deleteUser);
+router.delete('',  deleteUser);
 
 module.exports = router;

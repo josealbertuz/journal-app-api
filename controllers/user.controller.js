@@ -9,17 +9,16 @@ const salt = bcript.genSaltSync();
 
 const updateUser = async (req = request, res = response) => {
 
-    const { id, password, email, _id, active, ...user } = req.body;
+    const {password, email, _id, active, ...user } = req.body;
 
     if (password) {
         user.password = bcript.hashSync(password, salt);
     }
 
-
-    await User.findByIdAndUpdate(id, user);
+    await User.findByIdAndUpdate(req.uid, user);
 
     return res.json({
-        message: 'User saved successfully'
+        message: 'User updated successfully'
     });
 
 
@@ -29,20 +28,19 @@ const updateUser = async (req = request, res = response) => {
 const deleteUser = async (req = request, res = response, next) => {
 
     
-    const { id } = req.params;
-
+    const uid  = req.uid;
 
     session = await User.startSession();
 
     try{
         await session.withTransaction(async () => {
-            await User.findByIdAndUpdate(id, {
+            await User.findByIdAndUpdate(uid, {
                 active : false
             });
     
-            await Task.updateMany({userId : id}, {active : false});
+            await Task.updateMany({'userId' : uid}, {active : false});
     
-            await Note.updateMany({userId : id}, {active : false});
+            await Note.updateMany({'userId' : uid}, {active : false});
     
         });
 
@@ -63,7 +61,6 @@ const deleteUser = async (req = request, res = response, next) => {
 
 
 module.exports = {
-    createUser,
     updateUser,
     deleteUser
 }

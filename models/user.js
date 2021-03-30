@@ -42,7 +42,10 @@ UserSchema.static('login', async function(email) {
             pipeline : [
                 {$match : {
                     $expr : {
-                        $eq : ['$userId', '$$strId']
+                        $and : [
+                            {$eq : ['$userId', '$$strId']},
+                            {$eq : ['$active', true]}
+                        ]   
                     }
                 }},
                 {$project : {
@@ -52,7 +55,28 @@ UserSchema.static('login', async function(email) {
                 }},
                 {$limit : 5}
             ],
-        }).limit(1);
+        }).lookup({
+            from : 'notes',
+            as : 'notes',
+            let : {strId : {$toString : '$_id'}},
+            pipeline : [
+                {$match : {
+                    $expr : {
+                        $and : [
+                            {$eq : ['$userId', '$$strId']},
+                            {$eq : ['$active', true]}
+                        ]   
+                    }
+                }},
+                {$project : {
+                    active : 0,
+                    userId : 0,
+                    __v : 0
+                }},
+                {$limit : 5}
+            ],
+        })
+        .limit(1);
 
         return user;
 });

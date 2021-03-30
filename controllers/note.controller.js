@@ -6,7 +6,9 @@ const { Note } = require('../models/note');
 //TODO: Handle files
 const createNote = async (req = request, res = response, next) => {
 
-    const { title, body, userId } = req.body;
+    const { title, body } = req.body;
+
+    const userId = req.uid;
 
     const note = new Note({title, body, userId});
 
@@ -23,7 +25,7 @@ const readNote = async (req = request, res = response, next) => {
 
     const { offset = 0, limit = 5 } = req.query;
 
-    const { userId } = req.params;
+    const userId = req.uid;
 
     const [notes, results] = await Promise.all([
         Note.find({
