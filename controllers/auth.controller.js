@@ -3,6 +3,7 @@ const { ErrorHandler } = require('../errors/error');
 const bycript = require('bcryptjs');
 const User = require('../models/user');
 const { generateJWT } = require('../helpers/generate-jwt');
+const { googleVerify } = require('../helpers/google-verify');
 
 const login = async (req = request, res = response, next) => {
 
@@ -61,8 +62,52 @@ const signup = async (req = request, res = response, next) => {
 
 }
 
+const google = async (req = request, res = response, next) => {
+
+    const { id_token } = req.body;
+
+    try{
+        const { email, username } = await googleVerify(id_token);
+
+        let user = User.findOne({
+            email
+        });
+
+        if (!user){
+
+            user = new User({
+                email,
+                username,
+                password : ':D'
+            });
+
+            await user.save();
+
+        }
+
+        if(!user.active){
+            return res.status(401).json({
+                message : 'This user already exists, probably is inactive'
+            });
+        }
+
+        const token = await generateJWT(user.id);
+
+        return res.status(200).json({
+            user,
+            token
+        });
+
+    }catch(err){
+        return res.status(401).json({
+            message : 'Unauthorized user'
+        })
+    }
+}
+
 
 module.exports = {
     login,
-    signup
+    signup,
+    google
 }

@@ -1,6 +1,6 @@
 const Router = require('express');
 const {check} = require('express-validator');
-const { login } = require('../controllers/auth.controller');
+const { login, signup, google } = require('../controllers/auth.controller');
 const { emailExists } = require('../database/validators');
 const { checkErrors } = require('../middlewares/check-errors');
 const router = Router();
@@ -19,7 +19,12 @@ router.post('/signup', [
     check('username', 'Required username').notEmpty(),
     check('email', 'Invalid email').custom(emailExists),
     checkErrors
-], )
+], signup);
+
+router.post('/google', [
+    check('token_id', 'token_id can not be empty').notEmpty(),
+    checkErrors
+], google);
 
 
 
