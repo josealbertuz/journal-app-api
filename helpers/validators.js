@@ -1,3 +1,4 @@
+const { ErrorHandler } = require("../errors/error");
 const { Note } = require("../models/note");
 const { Task } = require("../models/task");
 const User = require("../models/user");
@@ -39,9 +40,16 @@ const noteExists = async (_id) => {
 
 }
 
+const checkMimeFile = (req, file, cb) => {
+
+    file.mimetype === 'image/jpeg' ? cb(null, true) : cb(new ErrorHandler(400, 'Only jpg or jpge files are allowed'));
+
+}
+
 module.exports = {
     emailExists,
     userExists,
     taskExists,
-    noteExists
+    noteExists,
+    checkMimeFile
 }

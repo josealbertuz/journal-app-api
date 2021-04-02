@@ -1,6 +1,6 @@
 const { check } = require('express-validator');
 const { deleteTask, updateTask, createTask, readTask } = require('../controllers/task.controller');
-const { userExists, taskExists } = require('../database/validators');
+const { userExists, taskExists } = require('../helpers/validators');
 const { checkErrors } = require('../middlewares/check-errors');
 //Router is a object, I have to create a new instance of it
 const router = require('express').Router();

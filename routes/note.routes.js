@@ -1,15 +1,25 @@
 const Router = require('express');
+const router = Router();
+const multer = require('multer');
 const { check } = require('express-validator');
 const { checkErrors } = require('../middlewares/check-errors');
-const { userExists, noteExists } = require('../database/validators');
+const { noteExists, checkMimeFile } = require('../helpers/validators');
 const { readNote, createNote, deleteNote } = require('../controllers/note.controller');
-const router = Router();
+const uploadFile = multer({
+    fileFilter : checkMimeFile
+});
 
-//create note
+/*
+create note
+============
+A multipart/form-data is not parsed, owe to that I have to call first multer,
+this middleware will parse the body and therefore check the fields
+*/
 router.post('', [
+    uploadFile.array('images', 3),
     check('title', 'title can not be empty').notEmpty(),
     check('body', 'body can not be empty').notEmpty(),
-    checkErrors,
+    checkErrors
 ], createNote);
 
 router.get('', readNote);
