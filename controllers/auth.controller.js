@@ -1,5 +1,5 @@
 const { response, request } = require('express');
-const { ErrorHandler } = require('../errors/error');
+const { ErrorHandler } = require('../errors/error-handler');
 const bycript = require('bcryptjs');
 const User = require('../models/user');
 const { generateJWT } = require('../helpers/generate-jwt');

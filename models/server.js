@@ -1,15 +1,25 @@
 const express = require('express');
 const cors = require('cors');
 const { dbConnection } = require('../database/config');
-const { handleError } = require('../errors/error');
+const { handleError } = require('../errors/error-handler');
 const { validateJWT } = require('../middlewares/validate-jwt');
 
 class Server {
 
 
     constructor(){
+
         this.app = express();
         this.port = process.env.PORT;
+
+
+        this.paths = {
+            auth : '/api/auth',
+            user : '/api/user',
+            task : '/api/task',
+            note : '/api/note',
+            uploads : '/api/uploads'
+        }
 
         this.middleware();
 
@@ -40,16 +50,17 @@ class Server {
 
     routes(){
 
-        this.app.use('/api/auth', require('../routes/auth.routes'));
+        this.app.use(this.paths.auth, require('../routes/auth.routes'));
 
-        //this functions prevents from users access to routes if they are not authorized
+        //this functions prevents from users access to routes unless they are authorized
         //They only can access to auth route
 
         this.jwtValidator();
 
-        this.app.use('/api/user', require('../routes/user.routes'));
-        this.app.use('/api/task', require('../routes/task.routes'));
-        this.app.use('/api/note', require('../routes/note.routes'));
+        this.app.use(this.paths.user, require('../routes/user.routes'));
+        this.app.use(this.paths.task, require('../routes/task.routes'));
+        this.app.use(this.paths.note, require('../routes/note.routes'));
+        this.app.use(this.paths.uploads, require('../routes/uploads.routes'));
 
     }
 

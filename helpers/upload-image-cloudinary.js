@@ -2,11 +2,11 @@ const cloudinary = require('cloudinary').v2;
 const { Readable } = require('stream');
 
 
-const uploadImage = (file) => {
+const uploadImageCloudinary = (file, fileName, folder = 'test') => {
 
     return new Promise((resolve, reject) => {
 
-        uploader(file.buffer)
+        uploader(file.buffer, fileName, folder)
             .then((result) => resolve(result.url))
             .catch((err) => reject(err.toString()));
 
@@ -14,13 +14,14 @@ const uploadImage = (file) => {
 
 }
 
-const uploader = (buffer) => {
+const uploader = (buffer, public_id, folder) => {
 
     return new Promise((resolve, reject) => {
+
         
         const imageConsumer = cloudinary.uploader.upload_stream({
-            folder : 'test',
-            format : 'jpg',
+            folder,
+            public_id
         }, (err, result) => {
             err ? reject(err) : resolve(result);
         });
@@ -32,5 +33,5 @@ const uploader = (buffer) => {
 }
 
 module.exports = {
-    uploadImage
+    uploadImage: uploadImageCloudinary
 }

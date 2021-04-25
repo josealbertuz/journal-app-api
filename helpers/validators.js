@@ -1,4 +1,4 @@
-const { ErrorHandler } = require("../errors/error");
+const { ErrorHandler } = require("../errors/error-handler");
 const { Note } = require("../models/note");
 const { Task } = require("../models/task");
 const User = require("../models/user");
@@ -40,10 +40,12 @@ const noteExists = async (_id) => {
 
 }
 
-const checkMimeFile = (req, file, cb) => {
+const fileFilter = (mimetypeAllowed = ['image/jpeg', 'image/png']) => {
+    return (req, file, cb) => {
 
-    file.mimetype === 'image/jpeg' ? cb(null, true) : cb(new ErrorHandler(400, 'Only jpg or jpge files are allowed'));
-
+        mimetypeAllowed.includes(file.mimetype) ? cb(null, true) : cb(new ErrorHandler(400, `Only ${mimetypeAllowed} are allowed`));
+    
+    }
 }
 
 module.exports = {
@@ -51,5 +53,5 @@ module.exports = {
     userExists,
     taskExists,
     noteExists,
-    checkMimeFile
+    fileFilter
 }

@@ -1,26 +1,18 @@
 const { response, request } = require('express');
-const { ErrorHandler } = require('../errors/error');
-const { uploadImage } = require('../helpers/upload-images');
 const { Note } = require('../models/note');
 
 
-
-
-//TODO: Handle files
 const createNote = async (req = request, res = response) => {
 
-    
-    const urls = [];
-
-    
-
+     
     const { title, body } = req.body;
 
     const userId = req.uid;
 
     const note = new Note({title, body, userId});
 
-    //await note.save();
+
+    await note.save();
 
     return res.status(201).json({
         message : 'Note created successfully'
