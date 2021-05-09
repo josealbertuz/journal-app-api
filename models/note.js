@@ -3,11 +3,11 @@ const {Schema, model} = require('mongoose');
 const NoteSchema = new Schema({
     title : {
         type : String,
-        require : true
+        default : '' 
     },
     body : {
         type : String,
-        require : true
+        default : ''
     },
     files : {
         type : [String],

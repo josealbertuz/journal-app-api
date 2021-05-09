@@ -1,9 +1,12 @@
 const { response, request } = require('express');
 const { ErrorHandler } = require('../errors/error-handler');
-const bycript = require('bcryptjs');
+const bcript = require('bcryptjs');
 const User = require('../models/user');
 const { generateJWT } = require('../helpers/generate-jwt');
 const { googleVerify } = require('../helpers/google-verify');
+const jwt = require('jsonwebtoken');
+
+const salt = bcript.genSaltSync();
 
 const login = async (req = request, res = response, next) => {
 
@@ -11,11 +14,14 @@ const login = async (req = request, res = response, next) => {
 
     try {
 
-        const user = await User.login(email);
+        const user = await User.findOne({
+            email,
+            active : true
+        });
   
         if(user){
 
-            const validPassword = bycript.compareSync(password, user.password);
+            const validPassword = bcript.compareSync(password, user.password);
 
             if(!validPassword){
                 return res.status(404).json({
@@ -25,10 +31,8 @@ const login = async (req = request, res = response, next) => {
 
             const token = await generateJWT(user._id);
 
-            delete user.password;
-
             return res.status(200).json({
-                user,
+                user : user.toJSON(),
                 token
             });
               
@@ -53,10 +57,13 @@ const signup = async (req = request, res = response, next) => {
 
     user.password = bcript.hashSync(user.password, salt);
 
-    await user.save();
+    const savedUser = await user.save();
+
+    const token = await generateJWT(user._id);
 
     return res.json({
-        message: 'User saved successfully'
+        user : savedUser.toJSON(),
+        token
     });
 
 
@@ -69,10 +76,11 @@ const google = async (req = request, res = response, next) => {
     try{
         const { email, username } = await googleVerify(id_token);
 
-        let user = User.findOne({
+        let user = await User.findOne({
             email
         });
 
+    
         if (!user){
 
             user = new User({
@@ -105,9 +113,41 @@ const google = async (req = request, res = response, next) => {
     }
 }
 
+const getUserByToken = async (req = request, res = response, next) => {
+
+    const token = req.header('x-token');
+
+    try {
+        
+        const { uid } = jwt.verify(token, process.env.PRIVATE_KEY);
+
+        const user = await User.findById(uid);
+
+        if(!user){
+            return res.status(404).json({
+                message : 'That user does no exist'
+            });
+        }
+
+        return res.json({
+            user,
+            token
+        });
+
+
+    } catch (error) {
+        next(new ErrorHandler(401, 'Unauthorized user'));
+    }
+
+
+
+
+}
+
 
 module.exports = {
     login,
     signup,
-    google
+    google,
+    getUserByToken
 }

@@ -14,11 +14,23 @@ const uploadImageCloudinary = (file, fileName, folder = 'test') => {
 
 }
 
+const deleteImageCloudinary = ( fileName ) => {
+
+    return new Promise((resolve, reject) => {
+
+        cloudinary.uploader.destroy(fileName, (error, result) => {
+            return error ? reject(error) : resolve(result);
+        });
+
+    });
+
+
+}
+
 const uploader = (buffer, public_id, folder) => {
 
     return new Promise((resolve, reject) => {
 
-        
         const imageConsumer = cloudinary.uploader.upload_stream({
             folder,
             public_id
@@ -33,5 +45,6 @@ const uploader = (buffer, public_id, folder) => {
 }
 
 module.exports = {
-    uploadImage: uploadImageCloudinary
+    uploadImageCloudinary,
+    deleteImageCloudinary
 }

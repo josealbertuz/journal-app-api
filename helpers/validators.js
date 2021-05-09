@@ -48,6 +48,7 @@ const fileFilter = (mimetypeAllowed = ['image/jpeg', 'image/png']) => {
     }
 }
 
+
 module.exports = {
     emailExists,
     userExists,
