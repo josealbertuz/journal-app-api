@@ -31,9 +31,12 @@ const login = async (req = request, res = response, next) => {
 
             const token = await generateJWT(user._id);
 
+            res.cookie('token', token, {
+                httpOnly : true
+            });
+
             return res.status(200).json({
-                user : user.toJSON(),
-                token
+                ...user.toJSON()
             });
               
         }
@@ -61,9 +64,12 @@ const signup = async (req = request, res = response, next) => {
 
     const token = await generateJWT(user._id);
 
+    req.cookie('token', token, {
+        httpOnly : true
+    });
+
     return res.json({
-        user : savedUser.toJSON(),
-        token
+        ...savedUser.toJSON(),
     });
 
 
@@ -101,9 +107,12 @@ const google = async (req = request, res = response, next) => {
 
         const token = await generateJWT(user.id);
 
+        res.cookie('token', token, {
+            httpOnly : true
+        });
+
         return res.status(200).json({
-            user,
-            token
+            ...user
         });
 
     }catch(err){

@@ -7,7 +7,7 @@ const createNote = async (req = request, res = response) => {
      
     const { title, body } = req.body;
 
-    const userId = req.uid;
+    const {uid : userId} = req.user;
 
     const note = new Note({title, body, userId});
 
@@ -25,7 +25,7 @@ const readNote = async (req = request, res = response, next) => {
 
     const { offset = 0, limit = 5 } = req.query;
 
-    const userId = req.uid;
+    const {uid : userId} = req.user;
 
     const [notes, results] = await Promise.all([
         Note.find({

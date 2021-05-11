@@ -2,7 +2,9 @@ const express = require('express');
 const cors = require('cors');
 const { dbConnection } = require('../database/config');
 const { handleError } = require('../errors/error-handler');
-const { validateJWT } = require('../middlewares/validate-jwt');
+const jwt = require('express-jwt');
+const getToken = require('../helpers/get-token');
+const cookieParser = require('cookie-parser');
 
 class Server {
 
@@ -38,6 +40,17 @@ class Server {
         //allows to parse json requests
         this.app.use(express.json());
 
+        this.app.use(cookieParser());
+
+        //allows validate JWT
+        this.app.use(jwt({
+            secret : process.env.PRIVATE_KEY,
+            algorithms : ['HS256'],
+            getToken
+        }).unless({
+            path : ['/api/auth/login', '/api/auth/signup', '/api/auth/google']
+        }));
+
         //acts as a wildcard if no endpoint is provided
         this.app.use(express.static('public'));
 
@@ -51,12 +64,6 @@ class Server {
     routes(){
 
         this.app.use(this.paths.auth, require('../routes/auth.routes'));
-
-        //this functions prevents from users access to routes unless they are authorized
-        //They only can access to auth route
-
-        this.jwtValidator();
-
         this.app.use(this.paths.user, require('../routes/user.routes'));
         this.app.use(this.paths.task, require('../routes/task.routes'));
         this.app.use(this.paths.note, require('../routes/note.routes'));

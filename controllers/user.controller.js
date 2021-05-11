@@ -15,7 +15,9 @@ const updateUser = async (req = request, res = response) => {
         user.password = bcript.hashSync(password, salt);
     }
 
-    await User.findByIdAndUpdate(req.uid, user);
+    const {uid} = req.user;
+
+    await User.findByIdAndUpdate(uid, user);
 
     return res.json({
         message: 'User updated successfully'
@@ -28,7 +30,7 @@ const updateUser = async (req = request, res = response) => {
 const deleteUser = async (req = request, res = response, next) => {
 
     
-    const uid  = req.uid;
+    const { uid } = req.user;
 
     session = await User.startSession();
 

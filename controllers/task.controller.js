@@ -5,7 +5,7 @@ const { Task } = require('../models/task');
 const createTask = async (req = request, res = response) => {
 
     const { description } = req.body;
-    const userId = req.uid;
+    const {uid : userId} = req.user;
     const task = new Task({description, userId});
 
     await task.save();
@@ -45,7 +45,7 @@ const deleteTask = async (req = request, res = response) => {
 
 const readTask = async (req = request, res = response) => {
 
-    const userId = req.uid
+    const { uid :userId } = req.user;
 
     const { offset = 0, limit = 5 } = req.query;
 
