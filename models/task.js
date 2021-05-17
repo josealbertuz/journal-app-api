@@ -7,8 +7,8 @@ const TaskSchema = new Schema({
         require: true
     },
     completed: {
-        type: Date,
-        default: null
+        type: Boolean,
+        default: false
     },
     priority: {
         type: Boolean,
@@ -26,9 +26,12 @@ const TaskSchema = new Schema({
 
 TaskSchema.methods.toJSON = function() {
 
-    const {_id, active, userId, __v, created_at, updated_at, ...task} = this.toObject();
+    const {_id : id, active, userId, __v, created_at, updated_at, ...task} = this.toObject();
 
-    return task;
+    return ({
+        id,
+        ...task
+    });
 
 
 }

@@ -17,9 +17,11 @@ const createTask = async (req = request, res = response) => {
 
 const updateTask = async (req = request, res = response) => {
 
-    const { _id, id, ...task} = req.body;
+    const { task } = req.body;
 
-    await Task.findByIdAndUpdate(id, task);
+    const { taskId } = req.params;
+    
+    await Task.findByIdAndUpdate(taskId, task);
 
     return res.status(200).json({
         message: 'Task updated successfully'
@@ -29,9 +31,9 @@ const updateTask = async (req = request, res = response) => {
 
 const deleteTask = async (req = request, res = response) => {
 
-    const { id } = req.params;
+    const { taskId } = req.params;
 
-    await Task.findByIdAndUpdate(id, {
+    await Task.findByIdAndUpdate(taskId, {
         active : false
     });
 
@@ -39,29 +41,21 @@ const deleteTask = async (req = request, res = response) => {
         message: 'Task updated successfully'
     });
 
-
-
 }
 
 const readTask = async (req = request, res = response) => {
 
     const { uid :userId } = req.user;
 
-    const { offset = 0, limit = 5 } = req.query;
 
-    const [tasks , results] = await Promise.all([
-        Task.find({
-            userId,
-            active : true
-        }).skip(offset).limit(limit),
-        Task.countDocuments({
-            userId,
-            active : true
-        })
-    ]);
+    const tasks = await Task.find({
+        userId,
+        active : true
+    });
+
+    
 
     return res.status(200).json({
-        results,
         tasks
     });
 

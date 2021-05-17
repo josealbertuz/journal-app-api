@@ -10,17 +10,17 @@ router.post('', [
     checkErrors
 ], createTask);
 
-router.put('', [
-    check('id', 'id can not be empty').notEmpty(),
+router.put('/:taskId', [
+    check('taskId', 'id can not be empty').notEmpty(),
     checkErrors,
-    check('id', 'That id does not exists').custom(taskExists),
+    check('taskId', 'That id does not exists').custom(taskExists),
     checkErrors
 ], updateTask);
 
-router.delete('/:id', [
-    check('id', 'id can not be empty').notEmpty(),
+router.delete('/:taskId', [
+    check('taskId', 'id can not be empty').notEmpty(),
     checkErrors,
-    check('id', 'That id does not exists').custom(taskExists),
+    check('taskId', 'That id does not exists').custom(taskExists),
     checkErrors
 ], deleteTask);
 
