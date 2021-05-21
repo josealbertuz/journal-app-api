@@ -4,44 +4,48 @@ const { Note } = require('../models/note');
 
 const createNote = async (req = request, res = response) => {
 
-     
-    const { title, body } = req.body;
+    const { uid: userId } = req.user;
 
-    const {uid : userId} = req.user;
+    const note = new Note({ userId });
 
-    const note = new Note({title, body, userId});
-
-
-    await note.save();
+    const { _id: noteId } = await note.save();
 
     return res.status(201).json({
-        message : 'Note created successfully'
+        noteId
     });
-
 
 }
 
-const readNote = async (req = request, res = response, next) => {
+const readAllNotes = async (req = request, res = response, next) => {
 
-    const { offset = 0, limit = 5 } = req.query;
+    const { uid: userId } = req.user;
 
-    const {uid : userId} = req.user;
-
-    const [notes, results] = await Promise.all([
-        Note.find({
-            userId,
-            active: true
-        }).skip(offset).limit(limit),
-        Note.countDocuments({
-            userId,
-            active: true
-        })
-    ]);
+    const notes = Note.find({
+        userId,
+        active : true
+    });
 
     return res.status(200).json({
-        results,
         notes
     });
+}
+
+const readNoteById = async (req = request, res = response) => {
+
+    const { uid: userId } = req.user;
+    const { id } = req.params;
+
+    const note =await Note.findOne({
+        userId,
+        _id : id,
+        active : true
+    });
+
+    return res.json({
+        note
+    });
+
+
 }
 
 const deleteNote = async (req = request, res = response, next) => {
@@ -49,41 +53,39 @@ const deleteNote = async (req = request, res = response, next) => {
     const { id } = req.params;
 
     await Note.findByIdAndUpdate(id, {
-        active : false
+        active: false
     });
 
     return res.status(200).json({
-        message : 'Note deleted successfuly'
+        message: 'Note deleted successfuly'
     });
 
 }
 
 const updateNote = async (req = request, res = response, next) => {
 
-    const {_id, id, userId, files = [], ...note} = req.body;
+    const { id } = req.params;
+
+    const { title, body } = req.body;
 
     await Note.findOneAndUpdate({
-        _id : id,
-        active : true
+        _id: id,
+        active: true
     }, {
-        note,
-        $push : {
-            files : {
-                $each : files,
-                $slice : -5
-            }
-        }
+        title,
+        body
     });
 
     res.status(200).json({
-        message : 'Note updated successfully'
+        message: 'Note updated successfully'
     });
 
 }
 
 module.exports = {
     createNote,
-    readNote,
+    readAllNotes,
+    readNoteById,
     deleteNote,
     updateNote
 }
