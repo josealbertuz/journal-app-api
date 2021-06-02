@@ -20,7 +20,7 @@ const readAllNotes = async (req = request, res = response, next) => {
 
     const { uid: userId } = req.user;
 
-    const notes = Note.find({
+    const notes = await Note.find({
         userId,
         active : true
     });
@@ -35,7 +35,7 @@ const readNoteById = async (req = request, res = response) => {
     const { uid: userId } = req.user;
     const { id } = req.params;
 
-    const note =await Note.findOne({
+    const note = await Note.findOne({
         userId,
         _id : id,
         active : true

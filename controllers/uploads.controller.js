@@ -67,10 +67,6 @@ const deleteImage = async (req = request, res = response, next) => {
 
 }
 
-
-
-
-
 module.exports = {
     uploadImage,
     deleteImage

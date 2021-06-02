@@ -30,10 +30,11 @@ const login = async (req = request, res = response, next) => {
             }
 
             const token = await generateJWT(user._id);
+
+            res.cookie('token', token, { httpOnly: true });
         
             return res.status(200).json({
-                ...user.toJSON(),
-                token
+                ...user.toJSON()
             });
               
         }
@@ -61,9 +62,10 @@ const signup = async (req = request, res = response, next) => {
 
     const token = await generateJWT(user._id);
 
+    res.cookie('token', token, { httpOnly: true });
+
     return res.json({
-        user : savedUser.toJSON(),
-        token
+        user : savedUser.toJSON()
     });
 
 
@@ -101,6 +103,8 @@ const google = async (req = request, res = response, next) => {
 
         const token = await generateJWT(user.id);
 
+        res.cookie('token', token, { httpOnly: true });
+
         return res.status(200).json({
             user,
             token
@@ -115,7 +119,7 @@ const google = async (req = request, res = response, next) => {
 
 const getUserByToken = async (req = request, res = response, next) => {
 
-    const token = req.header('x-token');
+    const token = req.cookies.token;
 
     try {
         
@@ -130,18 +134,13 @@ const getUserByToken = async (req = request, res = response, next) => {
         }
 
         return res.json({
-            user,
-            token
+            user
         });
 
 
     } catch (error) {
         next(new ErrorHandler(401, 'Unauthorized user'));
     }
-
-
-
-
 }
 
 

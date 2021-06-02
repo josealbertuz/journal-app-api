@@ -2,7 +2,7 @@ const Router = require('express');
 const router = Router();
 const { check } = require('express-validator');
 const { checkErrors } = require('../middlewares/check-errors');
-const { readAllNotes, createNote, deleteNote, readNoteById } = require('../controllers/note.controller');
+const { readAllNotes, createNote, deleteNote, readNoteById, updateNote } = require('../controllers/note.controller');
 
 router.post('', createNote);
 
@@ -21,7 +21,7 @@ router.delete('/:id', [
 router.put('/:id', [
     check('id', 'id can not be empty or is no valid').isMongoId(),
     checkErrors,
-],);
+], updateNote);
 
 
 

@@ -8,7 +8,6 @@ const { checkErrors } = require('../middlewares/check-errors');
 const multerUploader = multer({
     fileFilter : fileFilter()
 });
-const checkFiles = buildCheckFunction(['files']);
 
 
 /*
@@ -23,8 +22,6 @@ router.post('/:noteId', [
 ], uploadImage);
 
 router.delete('/:image', deleteImage);
-
-
 
 
 module.exports = router;

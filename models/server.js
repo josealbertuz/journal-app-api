@@ -3,7 +3,6 @@ const cors = require('cors');
 const { dbConnection } = require('../database/config');
 const { handleError } = require('../errors/error-handler');
 const jwt = require('express-jwt');
-const getToken = require('../helpers/get-token');
 const cookieParser = require('cookie-parser');
 
 class Server {
@@ -46,7 +45,7 @@ class Server {
         this.app.use(jwt({
             secret : process.env.PRIVATE_KEY,
             algorithms : ['HS256'],
-            getToken
+            getToken : (req) => req.cookies.token
         }).unless({
             path : ['/api/auth/login', '/api/auth/signup', '/api/auth/google']
         }));

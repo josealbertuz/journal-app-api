@@ -10,7 +10,7 @@ const NoteSchema = new Schema({
         default : 'Write something interesting...'
     },
     files : {
-        type : [String],
+        type : [],
         default : []
     },
     userId : {
@@ -19,7 +19,7 @@ const NoteSchema = new Schema({
     },
     active : {
         type : Boolean,
-        defult : true
+        default : true
     }
 });
 
@@ -28,7 +28,10 @@ NoteSchema.methods.toJSON = function(){
 
     const {__v, _id, userId, active, ...note} = this.toObject();
 
-    return note;
+    return {
+        id : _id,
+        ...note
+    };
 
 }
 
