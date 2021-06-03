@@ -7,7 +7,6 @@ const cookieParser = require('cookie-parser');
 
 class Server {
 
-
     constructor(){
 
         this.app = express();
@@ -55,8 +54,8 @@ class Server {
 
     }
 
-    async dbConnection(){
-        await dbConnection();
+    dbConnection(){
+        dbConnection();
     }
 
 
@@ -75,11 +74,6 @@ class Server {
         this.app.use(handleError);
 
     }
-
-    jwtValidator(){
-        this.app.use(validateJWT);
-    }
-
     
     listen(){
         this.app.listen(this.port, () => {

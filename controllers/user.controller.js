@@ -53,7 +53,6 @@ const deleteUser = async (req = request, res = response, next) => {
         session.endSession();
     }
 
-
     return res.status(200).json({
         message: 'Operation successful'
     });

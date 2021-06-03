@@ -4,7 +4,6 @@ const bcript = require('bcryptjs');
 const User = require('../models/user');
 const { generateJWT } = require('../helpers/generate-jwt');
 const { googleVerify } = require('../helpers/google-verify');
-const jwt = require('jsonwebtoken');
 
 const salt = bcript.genSaltSync();
 
@@ -16,35 +15,34 @@ const login = async (req = request, res = response, next) => {
 
         const user = await User.findOne({
             email,
-            active : true
+            active: true
         });
-  
-        if(user){
+
+        if (user) {
 
             const validPassword = bcript.compareSync(password, user.password);
 
-            if(!validPassword){
+            if (!validPassword) {
                 return res.status(404).json({
-                    message : 'Password not valid'
+                    message: 'Password not valid'
                 });
             }
 
             const token = await generateJWT(user._id);
 
             res.cookie('token', token, { httpOnly: true });
-        
+
             return res.status(200).json({
                 ...user.toJSON()
             });
-              
+
         }
 
         return res.status(404).json({
-            message : 'This user does not exists'
+            message: 'This user does not exists'
         });
 
     } catch (error) {
-        console.log(error);
         next(new ErrorHandler(500, 'An error ocurred'));
     }
 
@@ -58,15 +56,19 @@ const signup = async (req = request, res = response, next) => {
 
     user.password = bcript.hashSync(user.password, salt);
 
-    const savedUser = await user.save();
+    try {
+        const savedUser = await user.save();
 
-    const token = await generateJWT(user._id);
+        const token = await generateJWT(user._id);
 
-    res.cookie('token', token, { httpOnly: true });
+        res.cookie('token', token, { httpOnly: true });
 
-    return res.json({
-        user : savedUser.toJSON()
-    });
+        return res.json({
+            ...savedUser.toJSON()
+        });
+    } catch (error) {
+        next(new ErrorHandler(500, 'An error ocurred'));
+    }
 
 
 }
@@ -75,29 +77,29 @@ const google = async (req = request, res = response, next) => {
 
     const { id_token } = req.body;
 
-    try{
+    try {
         const { email, username } = await googleVerify(id_token);
 
         let user = await User.findOne({
             email
         });
 
-    
-        if (!user){
+
+        if (!user) {
 
             user = new User({
                 email,
                 username,
-                password : ':D'
+                password: ':D'
             });
 
             await user.save();
 
         }
 
-        if(!user.active){
+        if (!user.active) {
             return res.status(401).json({
-                message : 'This user already exists, probably is inactive'
+                message: 'This user already exists, probably is inactive'
             });
         }
 
@@ -106,47 +108,61 @@ const google = async (req = request, res = response, next) => {
         res.cookie('token', token, { httpOnly: true });
 
         return res.status(200).json({
-            user,
-            token
+            ...user.toJSON()
         });
 
-    }catch(err){
+    } catch (err) {
         return res.status(401).json({
-            message : 'Unauthorized user'
-        })
+            message: 'Unauthorized user'
+        });
     }
 }
 
-const getUserByToken = async (req = request, res = response, next) => {
+const getAuthorizedUser = async (req = request, res = response, next) => {
 
-    const token = req.cookies.token;
+    const { uid } = req.user;
+
+    if(!uid){
+        return res.status(401).json({
+            message: 'Unauthorized user'
+        });
+    }
 
     try {
-        
-        const { uid } = jwt.verify(token, process.env.PRIVATE_KEY);
+        const user = await User.findOne({
+            _id : uid,
+            active : true
+        });
 
-        const user = await User.findById(uid);
-
-        if(!user){
-            return res.status(404).json({
-                message : 'That user does no exist'
+        if(user){
+            return res.status(200).json({
+                ...user.toJSON()
             });
         }
 
-        return res.json({
-            user
+        return res.status(401).json({
+            message: 'Unauthorized user'
         });
 
-
     } catch (error) {
-        next(new ErrorHandler(401, 'Unauthorized user'));
+        next(new ErrorHandler(500, 'An error occurred'));
     }
 }
 
+const logout = (req = request, res = response, next) => {
+
+    res.cookie('token', 'none', { httpOnly: true });
+
+    return res.status(200).json({
+        message : 'User logged out successfully'
+    });
+
+}
 
 module.exports = {
     login,
     signup,
     google,
-    getUserByToken
+    getAuthorizedUser,
+    logout
 }

@@ -1,5 +1,5 @@
 const { Router } = require('express');
-const { check, buildCheckFunction } = require('express-validator');
+const { check } = require('express-validator');
 const router = Router();
 const multer = require('multer');
 const { uploadImage, deleteImage } = require('../controllers/uploads.controller');
@@ -21,7 +21,10 @@ router.post('/:noteId', [
     checkErrors
 ], uploadImage);
 
-router.delete('/:image', deleteImage);
+router.delete('/:image', [
+    check('image', 'image can not be empty').notEmpty(),
+    checkErrors
+], deleteImage);
 
 
 module.exports = router;

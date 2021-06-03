@@ -11,10 +11,8 @@ class ErrorHandler extends Error {
 const handleError = (err, req, res, next) => {
 
     if (err.name === 'UnauthorizedError') {
-        res.status(401).json({
-            message: 'Unautorized user'
-        });
-    }
+        res.status(401).send('invalid token');
+      }
 
     if (err.name === 'ErrorHandler') {
         const { statusCode, message } = err;

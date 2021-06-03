@@ -54,7 +54,7 @@ const deleteImage = async (req = request, res = response, next) => {
         });
     }
 
-    note.files = note.files.filter((file) => !file.includes(imageId));
+    note.files = note.files.filter((file) => file.id !== image );
 
     await note.save();
 
@@ -63,7 +63,6 @@ const deleteImage = async (req = request, res = response, next) => {
     });
 
     deleteImageCloudinary(image);
-
 
 }
 

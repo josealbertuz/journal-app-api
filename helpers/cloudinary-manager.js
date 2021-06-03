@@ -7,23 +7,13 @@ const uploadImageCloudinary = (file, fileName, folder = 'test') => {
     return new Promise((resolve, reject) => {
 
         uploader(file.buffer, fileName, folder)
-            .then((result) => resolve(result.url))
+            .then((result) => resolve({
+                id : result.public_id.substring(5),
+                url : result.url
+            }))
             .catch((err) => reject(err.toString()));
 
     });
-
-}
-
-const deleteImageCloudinary = ( fileName ) => {
-
-    return new Promise((resolve, reject) => {
-
-        cloudinary.uploader.destroy(fileName, (error, result) => {
-            return error ? reject(error) : resolve(result);
-        });
-
-    });
-
 
 }
 
@@ -41,6 +31,19 @@ const uploader = (buffer, public_id, folder) => {
         Readable.from(buffer).pipe(imageConsumer);
     
     });
+
+}
+
+const deleteImageCloudinary = ( fileName ) => {
+
+    return new Promise((resolve, reject) => {
+
+        cloudinary.uploader.destroy(fileName, (error, result) => {
+            return error ? reject(error) : resolve(result);
+        });
+
+    });
+
 
 }
 

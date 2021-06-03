@@ -1,6 +1,6 @@
 const Router = require('express');
-const {check, header} = require('express-validator');
-const { login, signup, google, getUserByToken } = require('../controllers/auth.controller');
+const {check} = require('express-validator');
+const { login, signup, google, getAuthorizedUser, logout } = require('../controllers/auth.controller');
 const { emailExists } = require('../helpers/validators');
 const { checkErrors } = require('../middlewares/check-errors');
 const router = Router();
@@ -26,8 +26,8 @@ router.post('/google', [
     checkErrors
 ], google);
 
-router.post('', [
-    header('x-token').notEmpty('x-token is required')
-], getUserByToken);
+router.get('/logout', logout);
+
+router.get('/get-authorized-user', getAuthorizedUser);
 
 module.exports = router;
